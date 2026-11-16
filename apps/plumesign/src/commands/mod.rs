@@ -2,6 +2,7 @@ use clap::{Parser, Subcommand};
 
 pub mod account;
 pub mod device;
+pub mod livecontainer;
 pub mod macho;
 pub mod sign;
 
@@ -29,4 +30,7 @@ pub enum Commands {
     Account(account::AccountArgs),
     /// Device management commands
     Device(device::DeviceArgs),
+    /// Deploy an IPA directly as a guest in an installed LiveContainer
+    #[command(name = "livecontainer")]
+    LiveContainer(livecontainer::LiveContainerArgs),
 }

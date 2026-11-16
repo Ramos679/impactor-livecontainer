@@ -1,4 +1,5 @@
 pub(crate) mod general;
+mod livecontainer;
 mod package;
 mod progress;
 pub(crate) mod settings;
@@ -8,10 +9,10 @@ mod windows;
 use std::collections::VecDeque;
 
 use iced::Length::Fill;
-use iced::widget::operation::{focus_next,focus_previous};
-use iced::widget::{button, column, container, pick_list, row, stack, text};
 use iced::event::{self, Event, Status};
 use iced::keyboard::{self, Key, key};
+use iced::widget::operation::{focus_next, focus_previous};
+use iced::widget::{button, column, container, pick_list, row, stack, text};
 use iced::window;
 use iced::{Element, Subscription, Task};
 
@@ -37,7 +38,9 @@ pub enum Message {
     NavigateToScreen(ImpactorScreenType),
     NextScreen,
     PreviousScreen,
-    TabPressed { shift: bool },
+    TabPressed {
+        shift: bool,
+    },
 
     // Device management
     ComboBoxSelected(String),
@@ -174,6 +177,30 @@ impl Impactor {
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
+        // Keep transfer ownership and its target stable until cleanup completes.
+        if let ImpactorScreen::Utilities(screen) = &mut self.current_screen {
+            if screen.livecontainer.busy() {
+                match &message {
+                    Message::ComboBoxSelected(_)
+                    | Message::NavigateToScreen(_)
+                    | Message::NextScreen
+                    | Message::PreviousScreen => return Task::none(),
+                    Message::Quit => {
+                        screen.livecontainer.cancel();
+                        return Task::none();
+                    }
+                    Message::DeviceDisconnected(id)
+                        if self
+                            .selected_device
+                            .as_ref()
+                            .is_some_and(|d| d.device_id == *id) =>
+                    {
+                        screen.livecontainer.cancel()
+                    }
+                    _ => {}
+                }
+            }
+        }
         match message {
             Message::ComboBoxSelected(value) => {
                 self.selected_device = self
@@ -182,7 +209,8 @@ impl Impactor {
                     .find(|d| d.to_string() == value)
                     .cloned();
 
-                if let ImpactorScreen::Utilities(_) = self.current_screen {
+                if matches!(&self.current_screen, ImpactorScreen::Utilities(screen) if !screen.livecontainer.busy())
+                {
                     let rppairing_enabled = match &self.current_screen {
                         ImpactorScreen::Utilities(screen) => screen.rppairing_enabled,
                         _ => false,
@@ -212,7 +240,8 @@ impl Impactor {
                     }
                 }
 
-                if let ImpactorScreen::Utilities(_) = self.current_screen {
+                if matches!(&self.current_screen, ImpactorScreen::Utilities(screen) if !screen.livecontainer.busy())
+                {
                     let rppairing_enabled = match &self.current_screen {
                         ImpactorScreen::Utilities(screen) => screen.rppairing_enabled,
                         _ => false,
@@ -246,7 +275,8 @@ impl Impactor {
                     }
                 }
 
-                if let ImpactorScreen::Utilities(_) = self.current_screen {
+                if matches!(&self.current_screen, ImpactorScreen::Utilities(screen) if !screen.livecontainer.busy())
+                {
                     let rppairing_enabled = match &self.current_screen {
                         ImpactorScreen::Utilities(screen) => screen.rppairing_enabled,
                         _ => false,
@@ -487,7 +517,9 @@ impl Impactor {
             }
             Message::UtilitiesScreen(msg) => {
                 if let ImpactorScreen::Utilities(ref mut screen) = self.current_screen {
-                    screen.update(msg).map(Message::UtilitiesScreen)
+                    let task = screen.update(msg).map(Message::UtilitiesScreen);
+                    screen.sync_device(self.selected_device.clone());
+                    task
                 } else {
                     Task::none()
                 }
@@ -831,7 +863,9 @@ impl Impactor {
                     ..
                 }),
                 Status::Ignored,
-            ) => Some(Message::TabPressed { shift: modifiers.shift() }),
+            ) => Some(Message::TabPressed {
+                shift: modifiers.shift(),
+            }),
             _ => None,
         });
 

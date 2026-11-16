@@ -9,7 +9,7 @@ repository.workspace = true
 [dependencies]
 idevice.workspace = true
 plist.workspace = true
-tokio.workspace = true
+tokio = { workspace = true, features = ["signal"] }
 futures.workspace = true
 env_logger.workspace = true
 log.workspace = true

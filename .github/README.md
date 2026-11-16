@@ -1,5 +1,12 @@
 # Impactor
 
+> **LiveContainer fork:** This fork adds direct IPA guest deployment over USB
+> through **Utilities → Install into LiveContainer**, with large-file streaming,
+> progress, and cancellation. Reopen LiveContainer after transfer; it handles
+> patching/signing on the guest's first launch. See the
+> [setup and usage guide](../docs/livecontainer.md). This is an independent fork;
+> the upstream download links below refer to the original Impactor releases.
+
 [![GitHub Release](https://img.shields.io/github/v/release/claration/Impactor?include_prereleases)](https://github.com/claration/Impactor/releases)
 [![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/claration/Impactor/total)](https://github.com/claration/Impactor/releases)
 [![GitHub License](https://img.shields.io/github/license/claration/Impactor?color=%23C96FAD)](https://github.com/claration/Impactor/blob/main/LICENSE)

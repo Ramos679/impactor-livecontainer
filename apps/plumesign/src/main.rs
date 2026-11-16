@@ -19,6 +19,7 @@ async fn main() -> anyhow::Result<()> {
         Commands::MachO(args) => commands::macho::execute(args).await?,
         Commands::Account(args) => commands::account::execute(args).await?,
         Commands::Device(args) => commands::device::execute(args).await?,
+        Commands::LiveContainer(args) => commands::livecontainer::execute(args).await?,
     }
 
     Ok(())
@@ -28,9 +29,7 @@ pub fn get_data_path() -> PathBuf {
     let base = if cfg!(windows) {
         env::var("APPDATA").unwrap()
     } else {
-        env::var("XDG_CONFIG_HOME").unwrap_or_else(|_| {
-            env::var("HOME").unwrap() + "/.config"
-        })
+        env::var("XDG_CONFIG_HOME").unwrap_or_else(|_| env::var("HOME").unwrap() + "/.config")
     };
 
     let dir = Path::new(&base).join("PlumeImpactor");

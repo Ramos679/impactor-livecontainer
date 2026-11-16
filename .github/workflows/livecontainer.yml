@@ -1,0 +1,47 @@
+name: LiveContainer checks
+
+on:
+  push:
+    branches: [livecontainer-direct-install, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-and-test:
+    runs-on: ubuntu-24.04
+    env:
+      CARGO_PROFILE_DEV_DEBUG: 0
+      CARGO_PROFILE_TEST_DEBUG: 0
+      CARGO_INCREMENTAL: 0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake clang pkg-config libglib2.0-dev libsecret-1-dev libgtk-3-dev libpng-dev libjpeg-dev libgl1-mesa-dev libglu1-mesa-dev libxkbcommon-dev libexpat1-dev libtiff-dev libxdo-dev libappindicator3-dev
+      - run: cargo check --locked -j 2 -p plume_utils -p plumesign -p plumeimpactor
+      - run: cargo test --locked -j 2 -p plume_utils --lib livecontainer
+      - run: cargo test --locked -j 2 -p plumesign list_and_deploy_are_distinct_actions
+
+  windows-build:
+    runs-on: windows-latest
+    env:
+      CARGO_PROFILE_DEV_DEBUG: 0
+      CARGO_PROFILE_TEST_DEBUG: 0
+      CARGO_INCREMENTAL: 0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --locked -j 2 -p plume_utils --lib livecontainer
+      - run: cargo test --locked -j 2 -p plumesign list_and_deploy_are_distinct_actions
+      - run: cargo build --locked -j 2 --bin plumeimpactor --bin plumesign
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: Impactor-LiveContainer-Windows-test-build
+          path: |
+            target/debug/plumeimpactor.exe
+            target/debug/plumesign.exe
+            docs/livecontainer.md

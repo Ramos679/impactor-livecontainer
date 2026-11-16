@@ -40,6 +40,7 @@ impl StatusMessage {
 #[allow(unused)]
 #[derive(Debug, Clone)]
 pub enum Message {
+    LiveContainer(super::livecontainer::Message),
     RefreshApps(bool),
     AppsLoaded(Result<Vec<SignerAppReal>, String>),
     InstallPairingFile(SignerAppReal),
@@ -51,6 +52,7 @@ pub enum Message {
 
 #[derive(Debug, Clone)]
 pub struct UtilitiesScreen {
+    pub livecontainer: super::livecontainer::LiveContainerPanel,
     device: Option<Device>,
     installed_apps: Vec<SignerAppReal>,
     status_message: Option<StatusMessage>,
@@ -61,8 +63,20 @@ pub struct UtilitiesScreen {
 }
 
 impl UtilitiesScreen {
+    pub fn sync_device(&mut self, device: Option<Device>) {
+        if !self.livecontainer.busy() {
+            if self.device.as_ref().map(|d| &d.udid) != device.as_ref().map(|d| &d.udid) {
+                self.device = device.clone();
+                self.installed_apps.clear();
+                self.app_statuses.clear();
+            }
+            self.livecontainer.sync_device(device);
+        }
+    }
+
     pub fn new(device: Option<Device>) -> Self {
         let mut screen = Self {
+            livecontainer: super::livecontainer::LiveContainerPanel::new(device.clone()),
             device,
             installed_apps: Vec::new(),
             status_message: None,
@@ -83,6 +97,10 @@ impl UtilitiesScreen {
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
         match message {
+            Message::LiveContainer(message) => self
+                .livecontainer
+                .update(message)
+                .map(Message::LiveContainer),
             Message::RefreshApps(_) => {
                 self.loading = true;
                 self.status_message = None;
@@ -344,6 +362,9 @@ impl UtilitiesScreen {
             content = content.push(apps_list);
         }
 
+        content = content
+            .push(container(rule::horizontal(1)).padding([appearance::THEME_PADDING, 0.0]))
+            .push(self.livecontainer.view().map(Message::LiveContainer));
         container(scrollable(content)).into()
     }
 
