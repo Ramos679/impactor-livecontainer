@@ -1,6 +1,6 @@
 # Direct LiveContainer installs
 
-This fork adds **Utilities → Install into LiveContainer**. It reads an IPA on
+This fork adds **Utilities â†’ Install into LiveContainer**. It reads an IPA on
 your computer and transfers its app bundle directly into an existing
 LiveContainer installation on a connected iPhone or iPad. You do not need to
 copy the IPA to Files and import it again on the phone.
@@ -71,9 +71,9 @@ This uses LiveContainer's current guest discovery and first-launch patching
 behavior, verified against source revision
 `b7cfda60` (November 2026). Older versions and third-party forks may differ:
 
-- [Guest discovery](https://github.com/LiveContainer/LiveContainer/blob/main/LiveContainerSwiftUI/LiveContainerSwiftUIApp.swift)
-- [First-launch patching and signing](https://github.com/LiveContainer/LiveContainer/blob/main/LiveContainerSwiftUI/Models/LCAppInfo.m)
-- [Launching a guest](https://github.com/LiveContainer/LiveContainer/blob/main/LiveContainerSwiftUI/Models/LCAppModel.swift)
+- [Guest discovery](https://github.com/LiveContainer/LiveContainer/blob/b7cfda60c39933a94d616f2a358ac2e48fd4e5cd/LiveContainerSwiftUI/App/LiveContainerSwiftUIApp.swift)
+- [First-launch patching and signing](https://github.com/LiveContainer/LiveContainer/blob/b7cfda60c39933a94d616f2a358ac2e48fd4e5cd/LiveContainerSwiftUI/Models/LCAppInfo.m)
+- [Launching a guest](https://github.com/LiveContainer/LiveContainer/blob/b7cfda60c39933a94d616f2a358ac2e48fd4e5cd/LiveContainerSwiftUI/Models/LCAppModel.swift)
 
 LiveContainer's optional import-time compatibility choices are not applied on
 the computer. Adjust a guest's compatibility settings in LiveContainer if it
