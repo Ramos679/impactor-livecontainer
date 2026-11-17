@@ -1,6 +1,6 @@
 # Direct LiveContainer installs
 
-This fork adds **Utilities â†’ Install into LiveContainer**. It reads an IPA on
+This fork adds **Utilities → Install into LiveContainer**. It reads an IPA on
 your computer and transfers its app bundle directly into an existing
 LiveContainer installation on a connected iPhone or iPad. You do not need to
 copy the IPA to Files and import it again on the phone.
@@ -87,7 +87,7 @@ Use the upstream build prerequisites in [.github/CONTRIBUTING.md](../.github/CON
 cargo check -p plume_utils -p plumesign -p plumeimpactor
 cargo test -p plume_utils --lib livecontainer
 cargo test -p plumesign list_and_deploy_are_distinct_actions
-cargo build --release --bin plumeimpactor --bin plumesign
+cargo build --release -p plumeimpactor -p plumesign --bins
 ```
 
 This is an independent fork. Upstream Impactor and LiveContainer are not

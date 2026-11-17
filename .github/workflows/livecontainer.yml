@@ -37,7 +37,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo test --locked -j 2 -p plume_utils --lib livecontainer
       - run: cargo test --locked -j 2 -p plumesign list_and_deploy_are_distinct_actions
-      - run: cargo build --locked -j 2 --bin plumeimpactor --bin plumesign
+      - run: cargo build --locked -j 2 -p plumeimpactor -p plumesign --bins
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: Impactor-LiveContainer-Windows-test-build
